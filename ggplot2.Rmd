@@ -1,0 +1,371 @@
+---
+title: "ggplot"
+documentclass: ctexart
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+---
+
+```{r setup, message = F, warning= FALSE, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+```
+
+```{r}
+mpg
+```
+
+```{r}
+ggplot(data=mpg)+geom_point(mapping=aes(x=displ,y=hwy))
+```
+
+**ggplot() 相当于一个不断叠加的图层**
+
+模板：
+ggplot(data= <DATA>)+<geom_Function>(mapping=aes(<MAPPINGS>))
+
+## 图形属性映射
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,color=class))
+```
+
+**但是不建议将无序变量与size联系起来**
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,size=class))
+```
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,alpha=class))
+```
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,shape=class))
+```
+
+**变量类型过多之后shape和size就显示不出来了**
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,color=displ<5))
+```
+
+**对于连续变量可以用color和size 但是不能用shape**
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy,color=cty))
+```
+
+## 分面
+
+facet_wrap() 第一个参数为 ～+变量名 ,变量必须是离散的。
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_wrap(~class,nrow=2)
+```
+
+facet_grid()可以对两个变量进行分面
+
+```{r}
+ggplot(data=mpg)+
+  geom_point(mapping=aes(x=displ,y=hwy))+
+  facet_grid(drv~cyl)
+```
+
+**空白图表示同时满足二者的车并不存在**
+
+**真对连续变量分面的话就会有许多**
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+    facet_grid(.~drv) # 与facet_wrap(~drv)相同
+```
+
+## 几何图像
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy,linetype=drv))
+```
+
+**几何图形有30多种**
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy,group=drv))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy,color=drv),
+              show.legend=FALSE) #边注释是否存在
+```
+
+**还可以多个图层叠加**
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+    geom_smooth(mapping = aes(x = displ, y = hwy))
+```
+
+**但是这样有代码重复，下面是避免的方法**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+    geom_smooth()
+```
+
+**几何函数内的mapping只对局部有效**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) + 
+    geom_smooth()
+```
+
+**不同图层也可以用不同的data**
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+  geom_point(mapping = aes(color = class)) + 
+    geom_smooth(
+      data=filter(mpg,class=="subcompact"),
+      se=FALSE #se指line的阴影部分
+    )
+```
+
+geom_boxplot()：绘制箱线图
+
+geom_histogram()：绘制直方图
+
+geom_bar()：绘制条形图
+
+geom_path()：在各个数据点之间连线（路径图）
+
+还有很多。
+
+下面两个代码没有区别：
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+    geom_smooth()
+
+ggplot() + 
+  geom_point(
+    data = mpg,
+    mapping = aes(x = displ, y = hwy)
+  )+
+  geom_smooth(
+    data = mpg,
+    mapping = aes(x = displ, y = hwy)
+  )
+```
+
+
+## 统计变换
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+
+几何对象函数和统计变换函数可以互换使用，因为每个几何对象函数都有一个默认统计变换，每个统计变换都有一个默认几何对象函数。
+
+```{r}
+ggplot(data = diamonds) + 
+  stat_count(mapping = aes(x = cut))
+```
+
+有时我们会想覆盖默认的统计变换：
+
+```{r}
+demo<-tribble(
+  ~a,~b,
+  "bar_1",20,
+  "bar_2",30,
+  "bar_3",40
+)
+
+ggplot(data=demo)+
+  geom_bar(aes(x=a,y=b),stat="identity")
+```
+
+有时可能会想覆盖从统计变换生成的变量到图形的默认映射：
+
+```{r}
+ggplot(data=diamonds)+
+  geom_bar(
+    mapping = aes(x=cut,y=..prop..,group=1)
+  )
+```
+
+有时想在代码中强调统计变换:
+
+```{r}
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.min = min,
+    fun.max = max,
+    fun = median
+)
+```
+
+## 位置调整
+
+可以利用color或者fill为条形图上色
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, color = cut))
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+```
+
+**这种堆叠是由position来进行位置调换的的，如果不想要这样的也可以选择identity，dodge或者fill**
+
+position="identity"会把每个对象的准确量表现在那， 但是不大适用于条形图，因为会覆盖，我们可以通过设置alpha或者fill=NA来让变透明
+
+```{r}
+ggplot(
+    data = diamonds,
+    mapping = aes(x = cut, fill = clarity)
+)+
+  geom_bar(alpha = 3/5, position = "identity")
+
+
+```
+
+position ="fill"可以轻松观察比例
+
+```{r}
+ggplot(data = diamonds) + geom_bar(
+            mapping = aes(x = cut, fill = clarity),
+            position = "fill"
+          )
+```
+
+**position="dodge"变成多个条形**
+
+```{r}
+ggplot(data = diamonds) + geom_bar(
+            mapping = aes(x = cut, fill = clarity),
+            position = "dodge"
+          )
+```
+
+另外也有一种不适合条形图但适合散点图的调整方法，散点图中经常会有点重合，我们可以加上一个小扰动：
+
+```{r}
+ggplot(data = mpg) + geom_point(
+        mapping = aes(x = displ, y = hwy),
+        position = "jitter"
+      )
+```
+
+
+## 坐标系
+
+coord_flip()用来交换x轴和y轴，在画水平箱图以及长标签很有用。
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+```
+
+
+coord_quickmap()为地图设置合适的比例：
+
+```{r}
+nz <- map_data("nz")
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", color = "black")
+ggplot(nz, aes(long, lat, group = group)) + 
+  geom_polygon(fill = "white", color = "black") + 
+  coord_quickmap()
+```
+
+coord_polar()用来得到极坐标，可以揭示出条形图和鸡冠图的关系：
+
+```{r}
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+   mapping = aes(x = cut, fill = cut), 
+   show.legend = FALSE,
+   width = 1
+  )+
+  theme(aspect.ratio = 1) + 
+  labs(x = NULL, y = NULL)
+  bar + coord_flip() 
+  bar + coord_polar()
+```
+
+
+## 图层分层语法
+
+ggplot(data=<DATA>)+
+
+  <geom_Function>(
+  
+    mapping =aes(<MAPPINGS),
+    
+    stat=<STAT>,
+    
+    position=<POSITION>
+  
+  )+
+  
+  <Coordinate_Function>+
+  
+  <Facet_Function>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
