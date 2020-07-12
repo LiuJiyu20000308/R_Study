@@ -1,0 +1,513 @@
+---
+title: "Untitled"
+author: "Liu Jiyu"
+date: "7/7/2020"
+output: html_document
+---
+
+```{r setup, message = F, include=FALSE}
+options(htmltools.dir.version = FALSE)
+library(tidyverse)
+```
+
+
+## Data Type
+
+Booleans; Integers; Characters; Strings; Floating point numbers; 
+Missing or ill-defined values(NA,NaN).
+
+typeof(),is.sth(),as.sth() and num?==as.numeric(as.character(num))
+```{r}
+typeof(7)
+is.numeric(7)
+is.character(7)
+is.integer(7)
+is.na(7)
+```
+
+```{r}
+is.na(7/0)
+is.na(0/0)
+```
+
+```{r}
+is.character("7")
+is.character("seven")
+is.na("seven")
+```
+
+```{r}
+as.character(5/6)
+as.numeric(as.character(5/6))
+6*as.numeric(as.character(5/6))
+as.integer(5/6)
+as.integer(7/6)
+```
+
+```{r}
+5/6==(as.character(5/6))
+5/6-as.numeric(as.character(5/6))
+all.equal(5/6,as.numeric(as.character(5/6)))
+identical(5/6,as.numeric(as.character(5/6)))
+5/6==as.numeric(as.character(5/6))
+```
+**Why 5/6==as.numeric(as.character(5/6)) is FALSE and 5/6==(as.character(5/6)) is TRUE?**
+    atomic vectors, symbols, calls, or other objects for which methods have been written. If the two arguments are atomic vectors of different types, one is coerced to the type of the other, the (decreasing) order of precedence being **character, complex, numeric, integer, logical and raw**.
+
+when using as.character(),5/6->0.8333333,however,5/6=0.833333..So it is FALSE.
+
+# $\pi$
+```{r}
+pi
+cos(pi)
+pi*10
+```
+
+# Peculiarities of Floating-point number
+# all.equal: Test if two objects are nearly equal.
+```{r}
+0.45==3*0.15
+0.45-3*0.15
+all.equal(0.45,3*0.15)
+```
+
+## Vectors
+
+```{r}
+x<-c(7,8,10,45)
+x
+is.vector(x)
+weekly_hours<-vector(length = 5)
+weekly_hours[5]<-8
+weekly_hours
+```
+
+Function c() returns a vector.
+
+x[i] is the i-th element
+
+**x[-4] is a vector containing all but the fourth element.**
+
+vector(length=5) returns an empty vector of length 6.
+
+# Vector arithmetic
+
+x+y x-y x*y x^y x>9 
+
+(x>9) & (x>20)
+
+```{r}
+y<-c(-7,-8,-10,-45)
+x+y
+x*y
+x+c(-7,-8)
+x^c(1,0,-1,0.5)
+2*x
+x>9
+(x>9) & (x<20)
+```
+
+**x==-y identical(x,-y) all.equal(x,-y)**
+
+```{r}
+x == -y
+identical(x,-y)
+
+z1<-c(0.45,0.45)
+z2<-c(3*0.15,3*0.15)
+z1 ==z2
+identical(z1,z2)
+all.equal(z1,z2)
+
+identical(c(0.5 - 0.3, 0.3 - 0.1),c(0.3 - 0.1, 0.5 - 0.3))
+all.equal(c(0.5 - 0.3, 0.3 - 0.1),c(0.3 - 0.1, 0.5 - 0.3))
+```
+
+# Addressing vectors
+
+```{r}
+x[c(2,4)]
+x[c(-1,-3)]
+```
+*WHY NOT 8 10?*
+
+The definition of x[-i]!
+
+**which() returns a index vector**
+```{r}
+(a<-x>9)
+x[a]
+!a[1:3]
+x[!a[1:3]]
+y[x>9]
+places<-which(x>9)
+places
+y[places]
+```
+
+**ATTETION： Recycling !a[1:3]=TRUE TRUE FALSE TRUE**
+
+#Named components
+
+```{r}
+names(x)<-c("v1","v2","v3","fred")
+names(x)
+x[c("fred","v1")]
+names(y)<-names(x)
+sort(names(x))
+which(names(x)=="fred")
+```
+
+## Functions on vectors
+
+```{r}
+x
+mean(x)
+median(x)
+sd(x) 
+var(x)
+max(x)
+min(x)
+length(x)
+sum(x)
+z<-sort(x)
+z
+summary(x)
+any(x>8)
+all(x>8)
+date()
+```
+
+What's more, ecdf(),hist().
+
+## Arrays
+
+dim=c(row,column)
+```{r}
+x<-c(7,8,10,45)
+x.arr<-array(x,dim=c(2,2))
+x.arr
+dim(x.arr)
+is.vector(x.arr)
+is.array(x.arr)
+```
+
+```{r}
+typeof(x.arr)
+str(x.arr)
+attributes(x.arr)
+attr(x.arr,"name")<-"ARRAY"
+attributes(x.arr)
+```
+typeof() returns the type of the elements.
+
+str() gives the structure.
+
+attributes() returns some properties.
+
+## Opeating on array
+
+```{r}
+x.arr[1,2]
+x.arr[3]
+x.arr[c(1:2),2]
+x.arr[,2]
+which(x.arr>9)
+```
+
+```{r}
+y<- -x
+y.arr<-array(y,dim=c(2,2))
+y.arr+x.arr
+rowSums(x.arr)
+colSums(x.arr)
+```
+
+## Example : PA
+
+**Census data for California and Pennsylvania on housing prices, by Census "tract"**
+
+```{r message = F}
+calif_penn <- read.csv("data/calif_penn_2011.csv")
+penn <- calif_penn %>% filter(STATEFP == '42')
+coefficients(lm(Median_house_value ~ Median_household_income, data=penn))
+```
+
+```{r}
+penn.coefs <- coefficients(lm(Median_house_value ~ Median_household_income, data=penn))
+penn.coefs
+```
+
+
+```{r}
+allegheny.rows <- 24:425
+allegheny <- penn %>% slice(allegheny.rows) %>%
+mutate(fitted = penn.coefs["(Intercept)"]+
+penn.coefs["Median_household_income"]*Median_household_income) 
+allegheny <- allegheny[complete.cases(allegheny),]
+#allegheny
+```
+**complete.cases() filters the rows which contain NA**
+
+# Plot
+
+```{r, message = F, dpi=300, fig.width=12, fig.height=7.5}
+allegheny %>% ggplot(aes(x = fitted, y = Median_house_value))+ geom_point()+
+labs(x = "Model-predicted median house values",
+y ="Actual median house values")+ geom_smooth() + geom_abline()
+
+allegheny %>% ggplot(aes(x = Median_household_income))+ geom_histogram()
+```
+
+## Matrices
+
+**Example:**
+
+* Factory makes cars and trucks, using labor and steel:
+    +a car takes 40 hours of labor and 1 ton of steel
+    +a truck takes 60 hours and 3 tons of steel
+    +resources: 1600 hours of labor and 70 tons of steel each week
+
+
+a matrix is a specialization of a 2D array
+
+```{r}
+(factory <- matrix(c(40,1,60,3),nrow=2) )
+is.array(factory)
+is.matrix(factory)
+```
+
+could also specify ncol, and/or byrow=TRUE to fill by rows.
+
+Element-wise operations with the usual arithmetic and comparison operators (e.g., factory/3)
+
+Compare whole matrices with identical() or all.equal()
+
+# Matrix multiplication
+
+%*% ； 
+```{r}
+(six.sevens <- matrix(rep(7,6),ncol=3))
+factory %*% six.sevens
+```
+
+**Numeric vectors can act like proper vectors:**
+
+```{r}
+output <- c(10,20) 
+factory %*% output
+output %*% factory
+
+```
+
+# Matrix Operators
+
+Transpose; Determinant; diagonal
+
+```{r}
+factory
+t(factory)
+det(factory)
+diag(factory)
+diag(factory)<-c(35,4)
+factory
+diag(factory)<-c(40,3)
+```
+
+```{r}
+diag(c(3,4))
+diag(2)
+```
+
+# invert a matrix
+
+```{r}
+solve(factory)
+factory %*% solve(factory)
+available<-c(1600,70)
+solve(factory,available)
+factory %*% solve(factory,available)
+```
+
+# Names in matrices
+
+Names help us understand what we're working with;
+
+Names can be used to coordinate different objects
+
+```{r}
+rownames(factory) <- c("labor","steel") 
+colnames(factory) <- c("cars","trucks") 
+factory
+```
+
+```{r}
+available <- c(1600,70) 
+names(available) <- c("labor","steel")
+output <- c(20,10)
+names(output) <- c("trucks","cars")
+factory %*% output # But we've got cars and trucks mixed up!
+```
+
+```{r}
+factory %*% output[colnames(factory)]
+```
+
+```{r}
+all(factory %*% output[colnames(factory)] <= available[rownames(factory)])
+```
+
+**Notice: Last lines don't have to change if we add motorcycles as output or rubber and glass as inputs (abstraction again)**
+
+## Doing the same thing to each row or column
+
+rowMeans() colMeans();
+
+rowSums() colSums();
+
+summary() apply(); 1 is row,2 is column
+
+```{r}
+colMeans(factory)
+summary(factory)
+rowMeans(factory)
+apply(factory,1,mean)
+apply(factory,1,sd)
+```
+
+## Lists
+
+Sequence of values, **not** necessarily all of the **same type**
+
+```{r}
+my.distribution <- list("exponential",7,FALSE) 
+my.distribution
+```
+
+# Accessing pieces of lists
+
+[] returns lists; [[]] returns a single index and drops names and structure
+
+```{r}
+is.character(my.distribution)
+is.character(my.distribution[[1]])
+my.distribution[[2]]^2
+#my.distribution[2]^2 iis WRONG!
+available
+available[2]
+available[[2]]
+```
+
+# Expanding
+
+```{r}
+(my.distribution <- c(my.distribution,7))
+length(my.distribution)
+length(my.distribution)<-3
+my.distribution
+```
+
+# Naming
+
+```{r}
+names(my.distribution) <- c("family","mean","is.symmetric")
+my.distribution
+
+my.distribution[["family"]]
+my.distribution["family"]
+my.distribution$family
+
+```
+
+
+```{r}
+another.distribution <- list(family="gaussian",mean=7,sd=1,is.symmetric=TRUE)
+my.distribution$was.estimated <- FALSE 
+my.distribution[["last.updated"]] <- "2011-08-30"
+my.distribution$was.estimated <- NULL
+```
+
+If all our distributions have components named family, we can look that up by name, without caring where it is in the list
+
+## Dataframes
+
+Dataframe = the classic data table, rows for cases, columns for variables
+
+Lots of the really-statistical parts of R presume data frames;
+
+penn from last time was really a dataframe
+
+**Not just a matrix** because columns can have different types;
+
+**no matrix multiplying dataframes, even if all columns are numeric**
+
+```{r}
+a.matrix <- matrix(c(35,8,10,4),nrow=2) 
+colnames(a.matrix) <- c("v1","v2") 
+a.matrix
+a.matrix[,"v1"]
+```
+
+```{r}
+a.data.frame <- data.frame(a.matrix,logicals=c(TRUE,FALSE)) 
+a.data.frame
+a.data.frame$v1
+a.data.frame[,"v1"]
+a.data.frame[1,]
+colMeans(a.data.frame)
+```
+
+# Adding rows and columns
+
+rbind(); cbind()
+
+```{r}
+rbind(a.data.frame,list(v1=-3,v2=-5,logicals=TRUE))
+rbind(a.data.frame,c(3,4,6))
+```
+
+## Structures of Structures
+
+```{r}
+plan <- list(factory=factory, available=available, output=output) 
+plan
+plan$output
+```
+
+**Internally, a dataframe is basically a list of vectors**
+
+List elements can even be other lists which may contain other data structures including other lists，which may contain other data structures...
+
+This recursion lets us build arbitrarily complicated data structures from the basic ones
+
+Most complicated objects are (usually) lists of data structures
+
+## Example: Eigenstuff
+
+**eigen() finds eigenvalues and eigenvectors of a matrix**
+
+```{r}
+eigen(factory)
+class(eigen(factory))
+```
+
+```{r}
+factory %*% eigen(factory)$vectors[,2]
+
+eigen(factory)[[1]]
+eigen(factory)[[1]][2]
+eigen(factory)$values[2]
+eigen(factory)[[1]][2] * eigen(factory)$vectors[,2]
+```
+
+
+## Summary
+
+Arrays add multi-dimensional structure to vectors
+Matrices act like you'd hope they would
+Lists let us combine different types of data
+Dataframes are hybrids of matrices and lists, for classic tabular data Recursion lets us build complicated data structures out of the simpler ones
+
+
+
+

@@ -1,0 +1,24 @@
+---
+title: "Chapter1_Notes"
+author: "Liu Jiyu"
+date: "7/6/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Seq()
+
+```{r}
+( a <- seq(from = 1, to = 2) )
+(a <- seq(from = 1, to = 3, by = 0.5) )
+(a <- seq(from = 1, to = 3, length.out = 5) )
+
+x <- c(1.2, 5.2, 6.3, 4.6)
+(a <- seq(along.with = x))
+(a <- seq(length.out = 5))
+
+```
+
