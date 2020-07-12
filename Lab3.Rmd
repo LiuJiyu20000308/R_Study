@@ -1,0 +1,76 @@
+---
+title: 'Lab 3: Data Wrangling on Soccer Tournament Data'
+date: 'July 9, 2020'
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r setup, message = F, include=FALSE}
+library(tidyverse)
+```
+
+Soccer tournament data wrangling
+--------------------------
+Read the dataset of football games.
+```{r}
+d <- read_csv("data/results.csv")
+d
+```
+
+1. Select variables `date`, `home_team` and `away_team`.
+```{r}
+select(d,date,home_team,away_team)
+```
+2. Subset games with **Brazil** as the home team.
+```{r}
+d %>% filter(home_team=="Brazil")
+```
+
+3. Choose the games that Brazil won as the home team, and select variables `date`, `away_team` and `tournament`.
+```{r}
+d%>%filter(home_team=="Brazil" & home_score>away_score) %>% select(date,away_team,tournament)
+```
+
+4. Add the difference of goals, and an indicator variable called `goleada` for when the difference of goals is large,  and select what we did only for Brazil. **Hint: use `ifelse`**.
+```{r}
+Func<-function(x){
+  y=vector(length=length(x))
+  for (n in 1:length(x)){
+    if (x[n]>3)
+      y[n]=TRUE
+    else
+      y[n]=FALSE
+  }
+  c(y)
+}
+d1<- d %>% mutate(difference=abs(home_score-away_score)) %>% mutate(g=Func(difference))
+
+filter(d1,home_team=="Brazil" |away_team=="Brazil")
+```
+
+5. What was the largest difference in goals within these games?
+```{r}
+max(d1[,"difference"])
+```
+
+6. The top 5 goleadas?
+```{r}
+
+```
+7. Summary on goals scored by home teams, such as `mean` of `home_score` and `away_score`, `std`, using `group_by` and `summarise`
+```{r}
+d %>% group_by(home_team) %>%
+  summarise(Mean_Home_Score=mean(home_score),M_A_S=mean(away_score))
+```
+
+8. Proportion of victories of **Brazil** on different tournaments against each opponent, for instance, **Argentina**.
+```{r}
+rm(Brazil)
+Brazil<- filter(d,home_team=="Brazil" | away_team=="Brazil")
+Brazil<- Brazil %>% mutate(Win=(home_team=="Brazil" & home_score>away_score) | 
+                    (away_team=="Brazile" & away_score>home_score))%>% select(date,home_team,away_team,home_score,away_score,Win)
+
+Brazil_Argen<- filter(Brazil,(home_team=="Argentina" & away_team=="Brazil")| (away_team=="Argentina"& home_team=="Brazil"))
+
+colSums(Brazil_Argen[,"Win"])/nrow(Brazil_Argen)
+```

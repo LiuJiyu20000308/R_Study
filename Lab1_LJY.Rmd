@@ -1,0 +1,89 @@
+---
+title: "Lab1_LJY"
+author: "Liu Jiyu"
+date: "7/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Part I
+
+**1.**
+
+```{r}
+exp.draws.1<-rexp(n=200,rate=1)
+mean(exp.draws.1)
+sd(exp.draws.1)
+```
+
+**2.** 
+
+-2.1
+```{r}
+exp.draws.0.5<-rexp(n=200,rate=0.5)
+mean(exp.draws.0.5)
+sd(exp.draws.0.5)
+```
+
+-2.2
+```{r}
+exp.draws.5<-rexp(n=200,rate=5)
+mean(exp.draws.5)
+sd(exp.draws.5)
+```
+
+-2.3
+```{r}
+exp.draws.10<-rexp(n=200,rate=10)
+mean(exp.draws.10)
+sd(exp.draws.10)
+```
+
+**3.**
+
+-3.1
+```{r}
+hist(exp.draws.1)
+```
+
+-3.2
+```{r}
+plot(sort(exp.draws.1))
+```
+-3.3
+```{r}
+plot(exp.draws.5,exp.draws.1)
+```
+
+**4.**
+
+
+
+## Part II
+
+**5.**
+
+-5.a
+```{r}
+big.exp.draws.1<-rexp(n=1.1*(10^8),rate=1)
+mean(big.exp.draws.1)
+sd(big.exp.draws.1)
+```
+
+-5.b
+```{r}
+hist(big.exp.draws.1)
+```
+```{r}
+biggerthan1<-big.exp.draws.1[which(big.exp.draws.1>1)]
+mean(biggerthan1)
+```
+
+
+
+
+
+
